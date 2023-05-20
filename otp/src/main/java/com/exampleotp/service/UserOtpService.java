@@ -41,16 +41,11 @@ public class UserOtpService {
     @Transactional
     public void authUser(UserRequest requestParam){
 
-        Optional<User> requestUser = userRepository.findByUsername(requestParam.getUsername());
+        User user = userRepository.findByUsername(requestParam.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("bad credentials.."));
 
-        if(requestUser.isPresent()){
-
-            User user = requestUser.get();
-            if(passwordEncoder.matches(requestParam.getPassword(), user.getPassword())){
-                renewOtp(user); //비밀번호 일치 하면 새로운 OTP 생성
-            }else{
-                throw new BadCredentialsException("bad credentials..");
-            }
+        if(passwordEncoder.matches(requestParam.getPassword(), user.getPassword())){
+            renewOtp(user); // 비밀번호 일치하면 새로운 OTP 생성
         }else{
             throw new BadCredentialsException("bad credentials..");
         }
@@ -77,16 +72,15 @@ public class UserOtpService {
     /**
      * OTP 검증
      */
-    public boolean validateOtp(OtpRequest requestParam){
+    public void validateOtp(OtpRequest requestParam){
 
-        Optional<Otp> requestOtp = otpRepository.findByUsername(requestParam.getUsername());
+        Otp otp = otpRepository.findByUsername(requestParam.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("bad credentials.."));
 
-        if(requestOtp.isPresent()){
-            Otp otp = requestOtp.get();
-            return requestParam.getCode().equals(otp.getCode());
+        if(!requestParam.getCode().equals(otp.getCode())){
+            throw new BadCredentialsException("bad credentials..");
         }
 
-        return false;
     }
 
 }

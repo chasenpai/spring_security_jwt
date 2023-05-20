@@ -28,13 +28,15 @@ public class AuthController {
 
     @PostMapping("/v1/user/authenticate")
     public ResponseEntity<Void> authUser(@RequestBody UserRequest requestParam){
+        System.out.println("requestParam = " + requestParam);
         userOtpService.authUser(requestParam);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/v1/otp")
-    public ResponseEntity<Boolean> validateOtp(@RequestBody OtpRequest requestParam){
-        return ResponseEntity.status(HttpStatus.OK).body(userOtpService.validateOtp(requestParam));
+    public ResponseEntity<Void> validateOtp(@RequestBody OtpRequest requestParam){
+        userOtpService.validateOtp(requestParam);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 
